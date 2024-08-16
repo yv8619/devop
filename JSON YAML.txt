@@ -1,0 +1,47 @@
+JSON YAML
+
+
+JSON:  goes inside curly braces ( object )
+
+requires key and vaues to be in double quotes
+Does not support comments.
+
+
+{
+	Servers: [
+		{
+			"name": "Yash",
+			"owner": "John",
+			"created": "29022024"
+		}
+	]
+}
+
+
+YAML : no curly braces.
+Do not require double quotes, and Uses indentation and relies on spaces.
+support comments.
+There should be a space btw : and value
+
+
+===> key-value 
+	name: Yash	
+	owner: John
+	created: 29022024
+
+
+===> Array/List ( values presented by dash )
+employees:
+  - name: john
+    gender: male
+    age: 24
+  - name: sarah
+    gender: female
+    age: 28
+
+
+===> Dictionary/Map ( key valaue pair )
+Fuits:
+	name: Yash	
+	owner: John
+	created: 29022024

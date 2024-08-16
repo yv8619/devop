@@ -1,0 +1,379 @@
+A shell is a program that acts as a interpreter or user interface to interact with the operating system. When you open a terminal or command prompt on your computer, you're usually interacting with a shell.
+To speak to shell, we use shell commands. when these commands are written in a logical order, it becomes a script. hence it is called shell scripting.
+
+Ideally a terminal allows one command at a time. Shell script allow you to combine and run multiple commands together.
+We can place all the commands in a file and run that file to perform a task instrad of running it one by one.
+We can even send the email to other users using shell command itself once the task is completed.
+INstead of running the shell file manually, we can create a job which will automatically run n send email every monday.
+
+General Shell types:
+Bash: Unix,Linux
+Powershell: windows
+
+Other list:
+/bin/sh
+/bin/bash/
+/bin/tcsh
+/bin/ksh
+
+user --> cmmond line/terminal (shell) --> kernel --> hardware
+
+which shell are you using ?
+echo $SHELL
+
+shell - location /bin/sh
+bash shell -- location /bin/bash 
+
+ssh - secure shell. 
+ssh client examples - cmd/terminal , putty, winscp.
+
+====================================================================================================================================================
+
+kill process - killall skype
+open calendar - cal 01 2010
+who is the user - whoami
+current working directory - pwd
+
+shell scripting is done in text editor using vim. vim is advanced version of vi editor. ( vi improved )
+:wq!write and quit by saving
+:qa quit without saving
+
+
+#!/bin/bash , shabang
+# means comment
+
+To execute a shell file, it should have executable permission. rwx
+how to execute, using (./) --->  ./devops.sh
+===================================================================================================================================================
+
+shell script start with #!/bin/bash ( shebang )
+#!/bin/sh -- was used as a short link for bash scripting. but ubuntu use it for dash scripting. so we should ideally use #!/bin/bash.	
+
+# directory commands
+mkdir devops			create folder
+rm devops 			delete empty folder
+rm -r devops			delete directory and its contents.
+mkdir devops{1..100}   	create 100 folders
+
+ls		list all files and folders
+ls -a		list of folders including hidden folders starting with dot (.)
+ls -l		list of folders with details including permissions, owner, group, size, and modification time.
+ls -t   	list files and directories in a directory, sorted by modification time, with the newest files first.	
+ls -r		recursively lists the contents of directories and their subdirectories.
+ls -altr   	above commands can be combined
+
+================================================================================================================================================
+
+File operation
+
+# touch myfile.txt
+we can also use vim command to create a file but this command also open the file at the same time. So touch command is handy in automation when you want to create n 
+number of files but do not want to open it. 
+
+# delete file, rm myfile.txt ( rm command directly can only b used to delete file but not folder )
+delete forcefully, rm -f myfile.txt
+There is no recycle bin in linux. so we have to be careful what to delete. once deleted, it is deleted. You cannot restore.
+
+# Renaming file
+mv myfile.txt  myfile2.txt    ( move command can be used to rename file )
+
+# move file to folder
+mv mfile2.txt  A-folder/
+
+# copying files:
+cp myfile1.txt myfile2.txt
+
+# deleting file:
+rm file1.txt
+
+# search with zero or more occurance :
+file *.txt
+file 1*
+mv *.txt folder-A/
+
+# Recursively
+cp -R source_directory destination_directory
+rm -R folder-A/
+
+=================================================================================================================================================
+
+Redirect : redirect the output to file/folder. This is done using > symbol.
+echo "hello world" > myfile.txt
+cat myfile.txt
+( NOTE - echo is used to print 1 liner on screen, but to view multiple lines on screen we use cat command )
+
+
+echo "hello world" > myfile.txt
+echo "hello world again" > myfile.txt   ( This will over write the content wirtten previously.)
+
+To append a line we use >> 
+echo "echo "hello world" > myfile.txt
+echo "how are you" >> myfile.txt
+cat myfile.txt
+[OUTPUT]
+hello world
+how are you
+
+>> appends line by line, but to append or concatenate multiple lines in one go, we use cat command. so cat can also append multiple lines, it can also be used to view multiple lines on screen
+cat myfile.txt file2.txt
+
+To orchestrate commands,  we use pipe . just like jenkins pipeline where output of 1 stage is fed to input of next stage.
+cat data.txt | wc -l  ( to check word count in a file )
+
+=================================================================================================================================================
+
+grep - global regular expression print. data searching command for file. grep is case sensitive and works only on files.
+
+find if file contain the word hello,  grep hello myfile.txt
+fetch info logs making search insensitive,  grep -i info app.log
+print all process with ubuntu user, ps aux | grep ubuntu  (  pipe pass the output of one command as input to another command. )
+cat file.txt | grep ubuntu
+search env file,  ls -l | grep environments
+search all directories, ls -l | grep ^d
+
+=================================================================================================================================================
+
+awk - is a command which is a program in itself
+
+print 1st column, awk '{print $1}' app.log
+print first 2 columns and 4th column, awk '{print $1,$2,£4}' app.log
+print last column, awk '{$NF}' app.log    ( NF means no of fields/columns )
+print 2nd last column, awk '{$NF-1}' app.log
+print INFO logs only, awk '/INFO/ {print $1}' app.log > only_info.log
+how many times INFO present, awk '/INFO/ {count++} END {print count}' app.log
+							 awk '/INFO/ {count++} END {print "The count of info is ",count}' app.log
+print row 2 to 10, awk 'NR>=2 && NR<=10 {print NR}" app.log
+
+=================================================================================================================================================
+
+sudo - acts as root user. 
+
+# change owner
+change owner of myfile.txt to sohan , sudo chown sohan myfile.txt
+change owner of group to devops, sudo chgrp devops myfile.txt
+
+# change permission
+chmod u=rw file.txt  ( u is user/owner )
+chmod o=w file.txt  ( o is other )
+
+if you want to add executable permission to all 3
+chmod +x file.txt
+
+if you want to remove executable permission
+chmod -x file.txt
+
+# environment variables
+echo $USER
+echo $HOME
+echo $PATH
+
+# read input from user
+echo "Please enter your name:"
+read name
+echo "Hello, $name!"
+
+==================================================================================================================================================
+
+System management - 
+
+history - gives the list of all commands you used.
+free : tells memory stats.
+nproc : tells cpu stats
+free -m 
+top : to check top processes consuming memory
+cat /proc/meminfo : displays memory information
+cat /proc/cpuinfo : displays cpu information
+which ls
+whereis ls
+================================================================================================================================================
+
+Shell scripting: first line should be the path of shell
+
+#! /bin/bash
+echo hello world
+
+read -p "what is your name" yourname
+echo "hello $yourname, Good to see you!"
+
+Run using ./ prefix. ex: ./myfirstshell.txt
+
+To run shell, it should have executable permission.
+chmod +x myfirstshell.txt
+
+case1 - 
+-Create  2 .txt files: "1.txt" "2.txt"
+-Inside 1.txt write the content of your pwd. in the long list format
+-Ask the user what prefix he wants to give to the file "1.txt"
+-Change the name of "1.txt" adding to it the prefix choosen by the user
+
+--------------------------------------------------------
+#! /bin/bash
+touch 1.txt 2.txt
+
+ls -l >> 1.txt
+read -p "enter your prefix" pref
+mv 1.txt ${pref}1.txt
+
+echo "Done"
+-------------------------------------------------------
+
+case2 - 
+Create a script that create an executable Script whose name is decided by the user 
+
+--------------------------------------------------------
+#! /bin/bash
+read -p "enter your executable script name" name
+
+touch ${name}
+
+echo "#! /bin/bash" >> ${name}
+echo " ###Automatically created script"
+echo " pwd " >> ${name}
+
+chmod +x ${name}
+
+echo "Done"
+------------------------------------------------------
+
+
+case3 - Do arithmetic operations
+
+-----------------------------------------------------------------------
+#! /bin/bash
+
+number1=10
+number2=3
+
+echo "SUM is $((number1 + number2))"
+echo "PRODUCT is $((number1 * number2))"
+echo "DIVISION is $((number1 / number2))"
+echo "POWER is $((number1 ** number2))"
+echo "REMINDER is $((number1 % number2))"
+------------------------------------------------------------------------
+
+
+case4 - Do logical operations
+
+if [ condition ]; then
+    # commands to execute if the condition is true
+else
+    # commands to execute if the condition is false
+fi
+
+In Bash scripting, conditions can involve various comparison operators, such as -eq (equal), -ne (not equal), -lt (less than), -gt (greater than), -le (less than or equal), -ge (greater than or equal), as well as logical operators like && (AND) -a and || (OR) -o, -z for empty
+
+-----------------------------------------------------------------------
+#! /bin/bash
+
+if [ 3 -eq 3 ]; then
+echo "they are equal"
+else
+echo " they are not equal"
+
+
+read -p "how old are you" age
+if [ $age -lt 0 ]; then
+echo "incorrect age"
+exit
+fi
+
+read -p "type something" str
+if [ -z $str ]; then
+echo "string is empty"
+exit
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+ 

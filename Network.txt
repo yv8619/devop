@@ -1,0 +1,59 @@
+Network
+
+IP address - unique address of any device connected to  a network.
+
+IPV4/IPV6 - For generating unique ip address ipv4/ipv6 standards is followed. 
+
+0-255 . 0-255 . 0-255 . 0-255 
+
+IPv4 addresses are 32 bits in length. 
+
+- - - - - - - - | - - - - - - - - | - - - - - - - - | - - - - - - - - 
+2^7	     2^0
+
+
+Subnet - dividing network to public n private based on IP range. Subnet can be divided into 2 - public subnet, private subnet. 
+private subnet do not have access to internet while public subnet have access to internet. 
+
+If for a subnet we need only 256 IP addresses , then the CIDR would be 172.0.0.0/24  i.e keep first 24 bits common and only last 8 dynamic.
+
+172.0.0.0/8	class A 	256*256*256		
+172.5.0.0/16	class B	256*256			65000 ip address
+172.5.3.0/24	class C	256				256 ip address
+
+private IP will always start with 192, 172, 10.
+
+
+OSI model : 7 layers (Open Systems Interconnection)
+
+even before request is initiated , say to google from our browser 2 things are sorted first
+- DNS resolution
+- TCP handshake
+
+https://www.google.com  -> DNS will map its corresponding IP in ISP. All ISP will maintain a DNS mapping.
+
+TCP -  3 way
+TCP creates a connection between your computer and server even before sending data. Called sync.
+Once connection is ready, request is sent to server. Once request recieved server acknowledges the request.
+Server responds to the request , client also acknowledges the same.
+
+Source to server (L7 to L1)
+Layer 7 - browser resolves request protocol, headers etc. Application layer
+Layer 6 - browser do data encryption. Presentation layer
+Layer 5 - browser session is created. Session layer.
+Layer 4 - data segmentation takes place. also protocol is resolved TCP/UDP. Transport layer
+Layer 3 - how to transfer data. Network layer
+Layer 2 - handles the framing, addressing, and error detection of data transmitted between devices on the same local network. Data link layer.
+Layer 1 - Physical Layer is the lowest layer in the OSI model and is responsible for the actual physical transmission of raw binary data over a physical medium, such as cables, fiber optics, or wireless signals.
+
+Server to source ( L1 to L7)
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,565 @@
+OS - is an interface btw user and hardware i.e user can direct the hardware to do a task via OS. ex. running a software 
+
+USER --> OS --> HARDWARE
+
+OS examples - windows, solaris, mac os, linux, ibm aix.
+
+windows is paid OS. 
+
+why linux is famous ?
+Linux is free. no Anti virus needed. Many flavours available. very fast as there is no UI.
+
+Linux flavours :
+red hat - 	 ubuntu, centos, redhat, sedora, debian.
+
+RHEL: RHEL uses the RPM (Red Hat Package Manager) package management system, with the yum or dnf package managers for installation, updating, and removal of software packages.
+RHEL is designed for enterprise environments, data centers, and cloud deployments. It is widely used in mission-critical applications where stability, security, and long-term support are essential.
+
+Ubuntu: Ubuntu uses the Debian package management system, with the apt (Advanced Package Tool) package manager for package management tasks.
+Ubuntu caters to a wide range of users, including desktop users, developers, and cloud infrastructure deployments. It is popular among individuals, small businesses, educational institutions, and cloud service providers.
+
+
+In windows OS is installed in C drive ( c:\ )  backward slash. In linux OS is installed in root  / (forward slash )
+user is created in user folder. in linux , user is created in home directory  /home
+user is created in a machine so that he can be given a set of permissions what he can do in a system. These permissions are given by admin/root
+winodws have admin, linux have root
+
+=======================================================================================================================================================
+
+Intro -->
+
+Data center ---> Internet service providers ( airtel, jio ) provide routers , broadband ---> DNS ---> SERVER.
+IP is registered. ISPs come to know how many devices are running and using the internet via the IP.
+So when a user request something like google.com, request first goes to ISP which checks if the IP is registered, 
+if yes then request goes to datacenter.
+
+
+				DNS
+youtube.com  ----------> IP ( server )
+(Domain)
+
+each IP have a name called Domain. So each domain is registered to its IP known as DNS.
+
+
+Server - which serve something like email (SMTP), file (FTP), application, data, web
+- application server : host dynamic data
+- web server : hosts static data
+
+standalone application - there is no db, cache or any backend.
+web application - there is db, backend, any other computation. ex: youtube, instagram.
+
+
+unix - commercialised OS, we need to pay. ex: MAC OS. Open source means something which code is publicly available.
+linux - free OS. linux comes from unix. since linux is free it is more famous. linux in itself is a kernel.
+
+
+kernel - is the heart of linux OS.
+- device management
+- memory management
+- process management
+- handling system
+- driver loading
+kernel is written in C language. we talk to kernel via shell. we give commands to shell ( shell commands ).
+Bootloader - when a computer starts, bootloader runs all the necessary files n libraries to run the OS.
+
+application --> shell --> kernel --> hardware (printer, scanner )
+
+=====================================================================================================================================================
+
+Create EC2 instance. 
+Take public IP of EC2 instance
+Download Mobaxterm, provide IP via ssh
+
+====================================================================================================================================================
+
+File system hierarchy :
+
+In windows root director is C:\ , in linux root directory is /
+
+/root directory - this is the home directory for root user. when you switch to root user, the path becomes /root. its like administrator folder in windows.
+/home directory - directory for all other users. like in windows C:\Users\C424640
+/usr directory - all softwares are installed in this folder. usr is unix sharable resources. its like program files folder in windows.
+/bin directory - contain binary/commands used by all users.
+/sbin directory - contain binary/commands used by super user.
+/var directory - contain variables like mail, log files.
+
+=========================================================================================================================
+
+class 0
+
+date --help  returns all the info about date
+info date	  returns all the info about date
+man date    returns manual about date
+date +%T    returns only time  in the "HH:MM:SS" format
+date +%Y   returns only year
+
+The + symbol indicates that you want to specify a custom output format.
+The % symbol followed by a character represents a format specifier 
+
+which date, gives location of command.
+alias a="date +%T"   setting short name of the command
+
+df , gives disk usage 
+echo , to print anything ex: echo "hello"  or echo hello
+tilde, to print value of command using echo ex: echo "today date is `date`"
+exit , to come out of terminal
+sleep 2
+
+=========================================================================================================================
+
+class 1
+
+# cat command ( for files ) - used to concatenate and display the contents of one or more files. 
+cat myfile.txt			display file contents
+cat file1 file2 			concatenate multiple files
+cat file1 file2 > file3		concatenate Files and Redirect Output to a New File ( >  sends the output to target )
+cat > file.txt			we can also create file and write contents on screen. ctrl d to save the file. next time cat file.txt will show the contents of file.
+cat -n file.txt			-n will show the line numbering .
+
+================================================================================================================================================
+
+# folder movement
+pwd		current location
+.   		current directory
+cd .  		change directory to current directory
+cd ..		change the current directory to the parent directory 
+cd ../../..   move up three levels in the directory hierarchy
+
+================================================================================================================================================
+
+
+# how to execute a shell script ?
+sh shell-script.sh  or  ./shell-script.sh
+default permission to run the file is denied. so we need to chmod the file
+chmod 777 shell-script.sh
+
+#
+prints top 10 lines by default, head myfile.txt
+prints bottom 10 lines by default, tail myfile.txt
+print the latest lines added to the file, tail -f myfile.txt ( it will keep printing, to stop ctrl C )
+print user provided count of lines, head -n 8 myfile.txt
+
+view file content in paginated way, less myfile.txt
+
+===============================================================================================	==============================================
+
+class 2 - managing files and directories
+
+cp source_file destination_file
+
+
+rename folder B 'devops' to folder C 'linux_for_devops',  
+
+find file or directory, ex:
+find / -name eve.ini
+find / -user yashu
+find / -group dev	
+
+word count - wc myfile.txt
+ex: returns, 1 4 16 myfile.txt  i.e 1 line, 4 words, 16 alphabets.
+
+#
+change directory , cd devops/ 
+if you are in sub folder, you can directly jump to any folder under root directory like cd /pace 
+
+=================================================================================================================================================
+
+#
+softlink , is kind of shortcut. ( like we create in windows. if main file is deleted, shortcut also gets deleted. )
+hardlink , is kind of shortcut. ( if main file is deleted, shortcut still remains. )
+
+creating shortcut/link to access a file directly. ex: if a file is present in location devops/devops1/myfile.txt
+
+ln -s devops/devops1/myfile.txt myfile_softlink.txt
+ln devops/devops1/myfile.txt myfile_hardlink.txt
+
+=================================================================================================================================================
+#
+cut - prints characters as per length provided. ( b is byte, d is delimeter, f is column )
+cut -b 4 myfile.txt
+cut -c 1-4 myfile.txt   
+cut -d "/" myfile.txt
+cut -f2 myfile.txt
+
+#
+tee - prints on screen and prints in the file together.
+echo "hello" | tee myfile.txt
+
+#
+diff - 2 files differences
+
+#
+editing file
+vi myfile.txt
+press i to go inside file in insert mode
+press esc to come out of insert mode
+:wq to quit ( write and quit )
+:q ( simply quit without saving )
+
+#
+
+hidden folders start with .
+ls -a , will show all folders including hidden folders.
+
+# 
+show all process, top
+pid of process, ps
+
+#
+To kill a process
+kill -9 processId
+
+# disk space, free
+free -h ( in detail)
+
+# store output to a file
+nohup free -h ( this stored output of free -h to a file )
+to view, cat nohup.out
+
+# 
+show the memory statistics, vmstat
+
+==============================================================================================================================================
+
+class 3
+
+uname, Linux
+uptime - how long system is up n running.
+date - gives system time
+cal - shows calendar 
+who, details of all users who logged in, when they logged in.
+whoami, current user name who is logged in.
+which, which java
+id, 
+man - shows manual of any command what does it do.
+
+sudo, super user / root user.
+
+# 
+apt - application manager. if you want to install any package.
+sudo apt-get install docker.io
+sudo apt-get update, update your system if package do not install
+which docker
+sudo apt remove docker.io
+
+===============================================================================================================================================
+# user and group management
+
+There are 3 types of users - root user, system user, normal user.
+
+root user - home directory /root , shell /bin/bash
+system user -  /ftp
+normal user - /home/username , /bin/bash
+
+
+# managing user
+
+whoami - tells who are you
+All the users related info is present in /etc/passwd
+adding new user, sudo useradd -m yashu_newuser   ( -m is making a directory for new user )
+set password for new user, sudo passwd yashu_newuser
+switch to new user, su yashu_newuser
+switch back to old user, exit.
+delete user, userdel yashu_newuser
+
+# managaing group
+
+All the users related info is present in /etc/group
+create a group named testers, sudo groupadd testers
+add user nikhil to group testers, sudo gpasswd -a nikhil testers
+add multiple users to group testers, sudo gpasswd -M sohan,ankit,vishwa testers
+delete nikhil from the group, sudo gpasswd -d nikhil testers
+
+# set up password 
+passwd C424640
+
+========================================================================================================================================================
+
+# file permissions
+drwxrwxr-x , can be divided into  d(folder)  rwx(owner) rwx(group) rwx(everyone excluding the owner and part of group
+-rwxrwxr-x , can be divided into    -(file)  rwx(user) rwx(group) rwx(other)
+x means execute.
+
+---		0
+--x		1
+-w-		2
+-wx		3
+r--		4
+r-x		5
+rw-		6
+rwx		7
+
+observe the pattern of r, w, x.
+
+777 means giving rw permissions to all.
+
+2) -rw-r-wr-x
+chmod u+x file1   ---> -rwxr-wr-x
+chmod g-w file1   ---> -rwxr--r-x
+chmod o=r file1   ---> -rwxr--r--
+
+
+# ls -l
+-rw--r--r-  1  root  root  122  May 7 20:29  file1
+permissons, file link, owner, owner primary group, size, date, file name
+
+# change ownership
+change owner of myfile.txt to sohan , sudo chown sohan myfile.txt
+change owner of group to devops, sudo chgrp devops myfile.txt
+
+======================================================================================================================================================
+
+# zip
+
+zip files, zip lfd.zip linux_for_devops/
+zip files, gunzip lfd.gz 
+gzip, gunzip have extension .gz. gzip does not work on directories.
+
+tar -cvf newfoldername oldfoldername
+tar -xvf newfoldername (extracting)
+zip folder, zip -r lfd.zip linux_for_devops/
+
+,  zip unzip have extension .zip
+
+==============================================================================================================================================
+
+networking commands -
+
+hostname of user, hostname
+check if any application is up n running ,  ping www.nationwide.co.uk
+check all active connectons on a network, netstat
+download application,  wget tomcat_link
+download a command, yum install wget
+identify ip address of system,  ifconfig
+
+Each application runs on a unique port number available from 0-65000.
+
+ip address + port number = socket
+The IP address identifies the device, and the port number identifies the specific application running on the device. These application be mntioned below.
+
+port 	service
+21	FTP
+22	SSH
+23	TELNET
+25	SMTP
+53	DNS
+80	HTTP
+443	HTTPS
+
+==============================================================================================================================================
+
+class 5
+
+AWK - is a command which is a program in itself
+print 1st column, awk '{print $1}' app.log
+print first 2 columns and 4th column, awk '{print $1,$2,£4}' app.log
+print INFO logs only, awk '/INFO/ {print $1}' app.log > only_info.log
+how many times INFO present, awk '/INFO/ {count++} END {print count}' app.log
+							 awk '/INFO/ {count++} END {print "The count of info is ",count}' app.log
+print row 2 to 10, awk 'NR>=2 && NR<=10 {print NR}" app.log
+
+diff btw AWK and SED - AWK needs a formatted data as input, while SED do not.
+
+
+SED - stream editor, used to search a word in the file and replace it with the word required to be in the output.
+sed 's/old_text/new_text/' filename  -- replaces dedicated word
+sed 's/old_text/new_text/g' filename -- replaces part of the word also
+above commands will not change actual file, but it will produce a new file having changes.
+
+sed -i '5,10p' filename ( -i will change the actual file itself ).
+sed -i 's/old_text/new_text/' filename
+sed -n '/old_text/new_text/' filename 
+
+sed -n '/INFO/p app.log > only_info.log
+show the line number where INFO is printed, sed -n -e '/INFO/=' app.log
+
+
+GREP - global regular expression print. data searching command
+Used to find a reqired expression from the file and print it. NOTE - grep is case sensitive and works only on files.
+
+find if file contain the word hello,  grep hello myfile.txt
+fetch info logs making info insensitive char,  grep -i info app.log
+print all process with ubuntu user, ps aux | grep ubuntu  (  pipe pass the output of one command as input to another command. )
+cat file.txt | grep ubuntu
+search env file,  ls -l | grep environments
+search all directories, ls -l | grep ^d
+
+
+
+================================================================================================================================================
+
+Process management - 
+
+when you run any application it runs as a process.
+
+ps -ef   list the process which are running in the system
+kill processId   to kill a process
+
+===============================================================================================================================================
+
+software management - installing red hat packages
+
+yum install package_name -y 
+yum remove  package_name
+yum update  package_name
+yum info package_name
+yum list available
+yum list installed
+
+
+yum install httpd
+service httpd status
+service httpd stop
+service httpd start
+service httpd reload
+service httpd restart	
+
+===============================================================================================================================================
+
+		RDP or SSH
+user ---------------------> remote machine
+RDP - remote desktop protocol / connection.
+
+# copy files btw windows to linux - winscp or mobaxterm
+winSCP is a file transfer tool that allows you to securely transfer files between a local and a remote computer. It primarily uses the SCP (Secure Copy Protocol) or SFTP (SSH File Transfer Protocol) to transfer files securely over SSH (Secure Shell) connections.
+
+SSH is a method for secure remote login from one computer to another. Putty is one such tool on windows to connect to linux servers.
+
+# copy files from one linux server to another linux server, we use scp command ( secure copy )
+scp source_file dest_user@public_ip:destination_folder
+
+# ssh key based authentication
+
+machine1   ------ ssh ------->  machine2(cloud/remote)
+port 22 is the default port for ssh access.
+ssh have 2 keys-- public key, private key
+
+the server which is to be accessed should have public key.
+the client which wants to connect to the server should have its private key.
+
+so when we create new key-pair in github or cloud, in beckend a command is run, ssh-keygen. This will generate public-private key pair.
+private key of the server will get downloaded in your system.
+
+
+================================================================================================================================================
+
+CRON - In any OS you can create a job that needs to be repeated at a certain time. This is called scheluding jobs. 
+In linux this is handled by CRON service. ( min hodom modow )
+
+0-59  MIN
+0-23  HOUR
+1-31  DOM, day of month
+1-12  MON
+0-6   DOW, day of week  ( sunday is 0, saturday is 6 )
+cmd   any command
+
+To create a crob job, crontab -e
+vi
+30 8 * * * echo "frstJob" >> /tmp/file
+
+================================================================================================================================================
+
+Scripting - 
+
+shell is just an interface to talk to kernel to perform any task by the computer.
+This interface can be CLI or UI. Different CLIs are :
+
+Windows - power shell
+MacOS - Bash ( unix )
+Linux - Bash
+
+-===========================================================================================================================================
+
+Que) create folder A, folder B,C under A . folder D,E under B. folder F,G under C.
+mkdir -p A A/{B/{D,E},C/{F,G}}   
+To go inside a folder we use slash /
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

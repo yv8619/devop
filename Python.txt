@@ -1,0 +1,66 @@
+Python
+
+
+shell script vs Python - since mostly we deal with linux systems ( ec2, vm, deploying applications ) we need to ssh them which is done via shell commands only. 
+collective commands (program) when they have a extension as .sh is known as shell script.
+
+basic admin tasks - go for shell scripting
+advance tasks, cross platform, api integratio - go for python
+
+
+print ("hello")
+
+exponential: 3 ** 2  ( no space btw * )
+
+variable:  python identy itself the data type
+age = 23
+
+
+String -
+slice :  url[2:6]  n to n-1
+
+========================================================================================================================================
+
+Escape characters :
+newline  \n
+"hello\nworld"
+
+double quotes \"
+tab \t
+single quote \'
+backslash  \\
+
+========================================================================================================================================
+
+Triple quotes - you can write paragraph or multi line statements using '''
+''' 
+hi how are you
+i am fine
+you good
+'''
+
+========================================================================================================================================
+
+functions:
+
+len(color)
+input("what is your name")     --  prompt question
+
+Type formatting: pass the variable into bracket to convert to whatever data type.
+age = "25"
+int(age)
+
+
+formatting string: f string
+f"there are {24*60*60} seconds in a day"
+there are 86400 seconds in a day.
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,800 @@
+Kubernetes
+https://kubernetes.io/docs/home/
+https://github.com/dennyzhang/cheatsheet-kubernetes-A4
+https://github.com/ahmetb/kubernetes-network-policy-recipes
+https://github.com/dgkanatsios/CKAD-exercises
+https://github.com/lucassha/CKAD-resources
+https://github.com/aleti-pavan/ckad-practice-questions/tree/main/content/2
+https://www.cs.cmu.edu/~15131/f17/topics/vim/vim-cheatsheet.pdf
+
+
+open source tool provided by Google. But vendors like amazon, redhat, mocirosft, google provides their own flavours of kubernetes and 
+dedicated support for any issues.
+
+Kubernetes distribution :
+AWS - EKS (Elastic Kubernetes Service)
+Azure - AKS (Azure Kubernetes Service)
+GCP - Google Kubernetes Engine (GKE)
+Redhat - Openshift container platform (OCP)
+
+
+docker problem:
+- single host
+- if any container is killed, application will not be accessible. Auto healing not available i.e container cannot come up on its own. 
+- auto scaling not available. 
+- Load balancer to equally distribute load to containers not present. 
+- no enterprise level docker support 
+
+Solution ===> Kubernetes
+
+- by default kubernetes is a cluster ( group of nodes/minions )
+- It is installed in a master-node architecture. ( 1 master node and multiple nodes as slave )
+- Google built enterprise level container orchestration platform.
+
+=======================================================================================================================================
+
+Node - physical or virtual machine where containers are hosted.
+Cluster - group of nodes. 
+Master node - machine where kubernetes is installed. It contains the kube api server which takes instructuions from the user. kubelet agents 
+sends node info to master which is then stored in etcd.
+
+" A worker node can have mulitple pods having 1 or more containers and there can be n number of nodes forming a cluster. "
+
+===========================================================================================================================================
+
+CLUSTER INSTALLATION - 
+
+cluster set up - Deploy a K8s cluster using minikube.
+
+Install minikube - minikube is a cmd tool which allows you to create single node cluster. This node acts both as master node and worker node.
+Install kubectl - command line tool to talk to minikube/cluster.
+
+kubeadm - multi node cluster, 1 master and 2 worker node. For development n testing.
+
+production - high availability set up. In prod we generally have multi-master multi-worker nodes.
+===========================================================================================================================================
+
+ARCHITECTURE ---
+
+The master node(control plane) in a Kubernetes cluster hosts the control plane components, which is responsible for managing and controlling 
+the overall state of the cluster. Control plane consist of components like API Server, etcd, controllers, scheduler.
+
+user request --> api server --> pod --> scheduler finds suitable node for the pod --> api server --> kubelet --> CRI ---> api server --> etcd
+
+1) API Server - is the core component of kubernetes which acts as front end of kubernetes for the user to talk to cluster and which do the 
+authentication authroizaton. Only api server talks to worker node. ( user ---> api server <--- scheduler,controller manager )
+
+2) scheduler - api server identifies the pod and scheduler is responsible to schedule work acros different nodes. decides which healthy node 
+   is suitable for a pod to run.
+
+3) etcd - is a key value store. Used to store all data related to manager cluster. 
+
+4) controllers - Manages multiple controllers, each responsible for maintaining a specific aspect of the cluster's state. 
+keeps checking if desired number of pods are always up n running.
+Manages the scaling and replication of pods based on the declared number of replicas in the Replication Controller or ReplicaSet.
+Monitors the state of nodes in the cluster, ensuring that the desired number of nodes is maintained. 
+Performs garbage collection to remove resources that are no longer needed or are orphaned.
+Different controllers in kubernetes managed by controller manager - 
+node controller, replication controller, deployment controller, namespace controller, job controller, cron job, replicaset controller, pv controller.
+
+  
+worker node(data plane) components - kubelet, kube-proxy, container runtime.
+----------------------------------------------------------------------------
+
+1) kubelet - is the node manager. All the activites which are done insie node is managed by kubelet. 
+It is the agent which runs in each node in cluster which makes sure the containers are running in each node as expected. Pod creation 
+and deletion in worker node is done by kubelet.
+
+2) kube-proxy is a component of Kubernetes that runs on each node in the cluster and is responsible for network proxy and load balancing. 
+Its primary role is to maintain network connectivity between different pods and services within the cluster.
+
+3) container runtime - underlying software to run the containers. These are installed on worker nodes.
+
+Summary - lets say user deploys a pod in worker node. Kubelet is resposible for maintaining the pod life. 
+Inside the pod there will be CRI ex: containerD which runs the container. All the networking of pods are managed by kube proxy.
+===========================================================================================================================================
+
+Container vs Pod
+- we cannot deploy container directly in kubernetes. Smallest unit is pod or replica set or deployment.
+- Docker creates single container, while kubernetes create group of containers called pod. A pod is the smallest deployable unit in Kubernetes.
+- Containers within a pod share the same IP address, port space, and local network, enabling them to communicate easily.
+- When scaling applications, it's common to scale pods rather than individual containers. Pods can be horizontally scaled to handle increased demand.
+- Unlike container, in kubernetes pod is deployed in worker node. 
+
+Runtime 
+- During runtime, the program interacts with the underlying runtime environment, which includes the operating system, hardware, and other system-level resources.
+- The runtime is responsible for managing memory allocation and deallocation as the program runs. This includes the creation and destruction of variables, objects, and data structures.
+- In the context of containerization, a container runtime is responsible for managing and executing containerized applications.
+- kube-proxy is a component of Kubernetes that runs on each node in the cluster and is responsible for network proxy and load balancing. Its primary role is to maintain network connectivity between different pods and services within the cluster
+- kubelet is a component in worker node which is responsible for running/maintaining a pod. 
+
+
+Control plane
+- API server is the heart of control plane which takes the input reqest from external world.
+- Scheduler is responsible for deciding which nodes in the cluster should run the pods that are submitted to the system. The scheduler takes into account the resource requirements and constraints of the pods when making placement decisions. This includes factors such as CPU and memory requirements.
+- etcd , stores the back up of cluster ( key-value store )
+
+=======================================================================================================================================================
+
+POD :
+- is the smallest deployable unit that can hold one or more containers.
+- Containers within a Pod share the same network namespace. They can communicate with each other using localhost and share the same IP address and port space.
+- Pods can define shared volumes that are mounted into the file systems of all containers within the Pod. This allows containers in the same Pod to share data and state.
+- Each Pod in a Kubernetes cluster is assigned a unique IP address. Containers within the Pod share this IP address.
+- containers in pod share same network, storage and resources.
+- POD will tell how the containers is to be created. This is done by using pod.yaml file.
+
+How to create a pod ?
+2 ways:
+declarative way - yaml
+imperative way - CLI (kubectl)
+
+kubectl run nginx --image nginx
+deploys a docker container by creating a pod. Creates a deployment called nginx, we specify the image which is pulled from docker hub by kubernetes. 
+
+create pod: kubectl create -f pod.yml 
+print pods: kubectl get pods  
+print pods with details:  kubectl get pod -o wide
+view pod logs: kubectl logs nginx
+view status of evrything inside pod: kubectl describe pod nginx		
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod (name of the pod)
+  labels:
+    app: myapp
+spec: ( container related info )
+  containers: ( is an array as pod can have multiple container )
+   - name: firstcontainer
+     image: nginx
+	 imagePullPolicy: Always
+	 env: 
+	  - name: ST
+	    value: dv18
+     args: ["sleep", "30"]
+   - name: secondcontainer
+     image: nginx
+	 env: 
+	  - name: ST
+	    value: dv18
+     args: ["sleep", "30"]
+	 
+	 
+metadata - contain data about the pod like pod name, labels
+spec - tells what all pod contain like containers, container name, image, replicas, selectors, env (list of dictionary)
+
+Create a new pod with the name redis and the image redis123. Use a pod-definition YAML file. And yes the image name is wrong!
+kubectl run redis --image=redis123 --dry-run=client -o yaml > redis-definition.yaml
+kubectl create -f redis-definition.yaml 
+
+once yaml file is created, and then if we do any changes to yaml file then we use apply
+kubectl apply -f redis-definition.yaml 
+
+===========================================================================================================================================
+
+kubernetes package manager - helm
+if you need any packages required to run the application , helm is the solution.
+Helm is the tool, and a Helm chart is the package created and managed by Helm for deploying applications on Kubernetes.
+
+Helm:
+
+Helm is a package manager for Kubernetes.
+It helps in deploying and managing applications on Kubernetes.
+
+Helm Chart:
+
+A Helm chart is a packaged application for Kubernetes i.e a chart is a helm package.
+It contains predefined configuration files and templates for Kubernetes manifests.
+Charts make it easy to share, deploy, and manage applications on Kubernetes.
+
+helm installs chart into kubernetes creating new release for each installation, and to find 
+
+comparison :
+
+helm chart : docker image
+helm : docker
+release : container	
+
+A Helm chart is a package of pre-configured Kubernetes resources that defines, installs, and manages Kubernetes applications.
+Cntents: It contains Kubernetes manifest files, templates, default configurations, and other resources required to deploy and manage an application on Kubernetes.
+Purpose: Helm charts simplify the deployment and management of complex applications on Kubernetes by providing a standardized way to define, package, and distribute applications.
+Building: Helm charts are created by organizing Kubernetes resources into a specific directory structure. A Chart.yaml file contains metadata about the chart.
+Deployment: Helm charts are deployed on a Kubernetes cluster using the Helm package manager. Helm translates the chart into Kubernetes manifests and applies them to the cluster.
+===========================================================================================================================================
+
+Why kubernetes and not docker ?
+kubernetes brings declarative approach to deploy containers rather than using cli commands. Aplication is deployed as pod in kubernetes.
+
+pod contain 1 or more container.
+sidecar container - provide functionalities such as logging, monitoring, security, or data processing that are separate from the main application logic.
+golang container - 
+init container -
+
+pod.yaml - is a specification how docker container has to run.
+===========================================================================================================================================
+
+Replication controller, Replica set
+Replica set is next gen replication controller.
+
+replicates pod if a pod goes down. Even if a node is limited by resource(cpu), it will then create pod in another node when the demand increases.
+
+apiVersion: v1 (replication controller)
+apiVersion: apps/v1  (replica set)
+
+selector is the major diff btw replication controller and replica set.
+
+Replica set - 
+
+kubectl create -f relicaset--definition.yml
+kubectl get replicationset
+kubectl edit rs new-replica-set 
+kubectl replace -f relicaset--definition.yml  ( if replicas is updated )
+kubectl delete replicateset myapp-replicaset
+kubectl scale --replicaset=6 -f relicaset--definition.yml  or  kubectl scale rs new-replica-set --replicas=6 
+
+* if you update image in replica set, then delete all the pods . new pod will auto create with new image.
+
+In order to find error in yaml file, simply create it first. it will show the error. fix it then.
+
+Probelm with replica set - 
+if application has to be moved to V2, it deletes all pods together which creates a downtime.
+if we want to switch back to previous version v1 from v2, 
+deployment solve above problem.
+
+===========================================================================================================================================
+
+why do we need deployment.yaml ?
+pod.yaml is a manifest which helps only in running a container just like docker with some advantage of
+shared network and storage. It does not have the capability of providing auto healing n auto scaling.
+At the end we create pod only but we do it via deployment.yml file.
+
+deployment --> [Replica set] creates replica sets --> replicaset create pods
+replica set is the kubernetes controller which implements auto healing feature. If we define we need 
+2 replica set, then this k8 controller will always maintain 2 pods even if user deletes 1 pod.
+when you create a deployment, replicaset is autmatically created which acts as a controller.
+
+kubectl create deployment httpd-frontend --image=nginx --replicas=3
+kubectl get deploy
+
+1) create a deployment name my-deploy with image nginx
+2) scale my-deploy to 3 replicas
+3) replace the image of my-deploy to nginx:alpine
+4) scale down to 2 replicas
+5) rollback to previous version of my-deploy
+6) delete deployment, replica set and pod.
+
+kubectl create deploy my-deploy --image=nginx
+kubectl create deploy httpd-frontend --replicas=3 --image=httpd:2.4-alpine
+kubectl get all
+kubectl rollout history deploy mydeploy
+kubectl scale deploy my-deploy --replicas=3
+kubectl get deploy my-deploy -o yaml > mydeploy.yaml
+kubectl apply -f mydeploy.yaml
+kubectl get deploy -o wide
+kubectl rollout history deploy mydeploy
+kubect rollout undo deploy mydeploy or kubectl rollout undo deployment.apps/nginx-deployment --to-revision=2
+
+===========================================================================================================================================
+
+kubectl get/describe/delete  pod/namespace/replicaset/replicacontroller/deployments/configmap  name
+kubectl explain pod2
+kubectl get pods -o wide
+
+labels:
+creating label:  kubectl label pod nginx env=testing
+creating label:  kubectl label pod nginx env1=dev
+changing name of label:  kubectl label --overwrite nginx env1=SIT
+deleting label:  kubectl label pod nginx env-
+setting label for all pods:  kubectl label --all status=ptl
+show all labels: kubectl get pods --show-labels
+edit pod - kubectl edit pod podname
+===========================================================================================================================================
+
+Set env variable for a container
+docker container exec -it bd1dffsr243 env
+kubectl exec myfirstpod env ( if pod have only 1 container )
+kubectl exec myfirstpod -c firstcontainer env  ( executing on specific container if there are multiple containers )
+
+
+on which node pod is running ?
+kubectl get pods -o wide
+===========================================================================================================================================
+
+Rollout and Update
+
+kubectl rollout status deployment/myapp-deployment
+kubectl rollout history deployment/myapp-deployment
+kubectl apply -f deployment/myapp-deployment
+
+kubectl rollback undo deployment/myapp-deployment
+
+how to update image in deployment ?
+deploy contain pod, pod contain container, container contain image
+kubectl set image deploy frontend my-webapp=
+==========================================================================================================================================
+
+kubernetes namespace - Assume cluster like a house having different rooms. one room for guest, one room for kids .. an isolated area
+within the house. similary, when we deploy resources to cluster when logically group it, call it as namespace. resources within a room
+are accessbile to resources in the same room.
+
+By default pods are created in default namespace which is open for all, any one can see and change pod. not recommended.
+namespace is an isolated area within the cluster to deploy resources so as to isolate it with other resources in another namespace.
+They allow users to logically group related resources together, making it easier to manage and administer large-scale deployments.
+ex: int16-api-shared , int16-smapi-shared , dev, ST, SIT
+we deploy 1 or more applications in each namespace as per need.
+Resources created within a namespace are only accessible to other resources within the same namespace.
+Kubernetes namespaces can be used to enforce resource quotas, specifying limits on the amount of CPU, memory, and storage 
+that can be consumed by resources within the namespace. 
+Namespaces provide a level of security by allowing cluster administrators to apply RBAC (Role-Based Access Control) policies at the namespace level. 
+This enables fine-grained access control, allowing different users or teams to have varying levels of access to resources within different namespaces.
+
+kubectl create namespace dev
+
+kubectl get pods ( pods are created in default namespace, thats why we are able to see pods )
+kubectl get pods -o wide ,  gives all details
+kubectl get all , 
+kubectl get all -A , to retrieve information about resources across all namespaces
+kubectl create deploy redis-deploy --namespace=dev-ns --image=redis --replicas=2
+kubectl get pods --namespace=dev
+kubectl config set-context $(kubectl config current-context) --namespace=dev  ( permanently set namespace to dev)
+kubectl get pods --all-namespaces 
+kubectl get po -A, to list all pods across all namespaces
+kubectl get deploy -A, list all deployment across all namespaces
+==========================================================================================================================================
+
+Resource quota - once namespace is defined, there should be a way to control on how many resources can be created in the cluster.
+as w.o limit there will be high cpu usage n performance issues. This is where resource quota is defined.
+===========================================================================================================================================
+
+RBAC - when we run a kubectl command to create any resource in k8 cluster, the request first goes to API server.
+api server does the authentication of user. User here can be of 2 types: normal user (admin/dev) , service account (any application)
+after authentication, then authorization checks are performed. 
+
+Authorization modes: 
+1) attribute based access control (policy set for each user independently)
+2) role based access control
+
+rbac:
+role - pods, deployment, services, configmap, secrets.
+cluster role - nodes, namespace, clusterrole, clsuterrolebinding
+role binding
+cluster role binding
+
+===========================================================================================================================================
+
+Service account - 
+
+Kubernetes User can be of 2 types: normal user (admin/dev) , service account.
+normal user - 
+service account - is used where a aplication wants to connect to cluster to create resource or for data retreiving. As we know, any operation
+in cluster is processed once authentication is successful by api server. So in order to authenticate an application for it to create or read in 
+cluster we create its service account. Password will be a token. For authorization, we create rules under role and bind it to service account
+with the help of roleBinding. 
+
+===========================================================================================================================================
+Configmap - env variables scope is limited to pod, i.e we will have to provide env var in yaml files of all the pods. Solution to this is
+config map. store non sensitive data like any env variables. Scope of config map is namespace. In a namespace there may be multiple pods.
+ConfigMaps are commonly used for storing environment variables, command-line arguments, configuration files, and any other type of configuration 
+data that your application might need. They're particularly useful when you have multiple pods or containers that need to share the same configuration.
+
+configmap -> namespace -> pods
+
+k create configmap <name> --from-literal=<key>=<value>
+k create configmap <name> --from-file=<file-name>
+
+how to attach config map to pod ?
+spec:
+ envFrom:
+  -configMapRef:
+    name: my-configmap
+
+secrets - store sensitive data like db user psw. by having strong RBAC.
+
+rbac :
+1) roles/cluster roles - role based access to kubernetes cluster.
+2) service account/users - service based access if the pod have access to config map, secrets etc.
+3) role binding
+
+kubernetes does not do role management, instead this has to be done by identity providers.
+
+===========================================================================================================================================
+
+create pod named mypod using nginx image with never restart policy.
+kubectl run mypod --image=nginx --restart=Never
+
+create pod named pod2 using nginx image with never restart policy and label name pod2
+kubectl run pod2 --image=nginx -l name=pod2 --restart=Never
+kubectl get pods --show-labels
+===========================================================================================================================================
+
+Commands and Arguments in Docker -
+-------------------------------- 
+
+Docker run ubuntu - docker runs an instance of ubuntu image and exits immediately. if we do , docker ps , we wont see any running container.
+if we see docker ps -a, we will see the container in exited state. This is coc unlike VM, containers are not meant to host OS. They are meant
+to host a process or any task. The container lives as long as the process inside it is running. ex: application running inside container.
+
+In docker file, there is a key named CMD which tells us what command will run as soon as container is launched. In case of Ubuntu image
+the CMS is bash. Since there is no active terminal attached to the container it exits. 
+
+We can otherwise pass command in impertive commands - 
+docker run ubuntu sleep 5
+
+docker run ubuntu-sleeper 10 . here we dont mention sleep expictly in the command. In this case ENTRYPOINT comes into picture in docker file.
+and if user do not provide sleep time in command, then we provide default time in file under CMD .
+
+FROM ubuntu
+
+ENTRYPOINT ["sleep"]
+
+CMD ["5"]
+
+
+Commands and Arguments in Kubernetes - 
+------------------------------------
+
+In yaml file, to override the values of ENTRYPOINT and CMD we have 
+command: ["sleep 2.0"]
+args: ["10"]
+
+===========================================================================================================================================
+
+Editing pod :
+
+We cannot edit specifications of an existing POD. cannot edit the environment variables, service accounts, resource limits of a running pod. 
+
+how to do ?
+extract yaml defn into a new yaml,  kubectl get pod webapp -o yaml > my-new-pod.yaml
+edit pod file, vi my-new-pod.yaml
+Then delete the existing pod, kubectl delete pod webapp
+Then create a new pod with the edited file, kubectl create -f my-new-pod.yaml
+
+===========================================================================================================================================
+
+Multi container POD :
+
+1) sidecar container - logging agent to collect logs.
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: yellow
+  name: yellow
+spec:
+  containers:
+  - image: busybox
+    name: lemon
+    resources: {}
+    command: ["sleep","1000"]
+  - image: redis
+    name: gold
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+after creating yaml, run command - k create -f yellow.yaml
+
+
+Helper container - 
+logging agent, monitoring agent to fetch logs - sidecar container
+to convert logs of different laguages into a common format - adaptor container
+to help contaner connect to dbs placed outside the cluster with the help of proxy container - ambassador container
+
+Init container - are different from multi container. They run before the main container in a pod.
+They are primarily used for initialization tasks, such as preparing the environment, fetching configuration files, or waiting for external 
+services to become available, setting up directories, downloading dependencies, or initializing databases.Init containers can fetch 
+configuration files or secrets from external sources, such as ConfigMaps, Secrets, or remote repositories. These configuration files can then 
+be mounted into the main containers for use by the application.
+
+
+k create ns ckad
+k run pod1 --namespace=ckad --image=nginx:2.3.5 --port=80
+k get po
+
+===================================================================================================================================================
+
+SERVICES AND NETWORK POLICY 20%
+-------------------------------
+Provide and troubleshoot access to applications via services
+Use Ingress rules to expose applications
+Demonstrate basic understanding of NetworkPolicies
+
+kubernetes Service (svc) - Pod have dynamic IP address i.e their ip changes when they are deleted, or when they are moved to another node.
+so how do we access application if IP is not static ?
+
+# replica set provide auto healing ability
+# svc provide load balancing ability. 
+# service discovery - svc locates the pod using the label n selectors rather than IP address.
+# svc can also expose application to external world.
+
+user ---> deployment --> svc (payment.domain.svc) --> label selectors --> pod
+
+service provides a consistent way to access a set of pods, regardless of their individual IP addresses or which node they are running on. 
+Services enable communication between different parts of an application within a Kubernetes cluster. Instead of finding pod with its IP address,
+we label the pod. Services use label selectors to determine which pods they should route traffic to. 
+Pods are selected based on labels defined in their metadata. This is implemented by having Selectors tag in the yaml file.
+
+Node will have its IP, Pod inside the node will have a separate IP. We can ping the node from our computer but we cannot ping the pod as it is 
+on diff ntwork. Also we can ping the pod but from the node. This comm is internal to the node. So we need a middleman who can take the request
+from outside the node and forward the reqst to required pod in order to access the application. This is where Services object comes into play.
+
+
+Services types: how to access application
+
+1) NodePort - Exposes the service on a static port on each node's IP address. Allows external traffic to reach the service by accessing any node in 
+the cluster on the specified port.  port[targetport[nodeport]]
+Port of pod is called targetPort.
+port of service is called port
+port of node is called nodeport.
+
+ports:
+  - port: 80
+    nodePort: 30004
+    targetPort: 80
+   
+
+User → Service → Pod → Node
+
+
+2) cluster ip - Exposes the service on an internal IP address, reachable only from within the Kubernetes cluster.  
+It's suitable for communication between microservices within the cluster. ex: FE to comunicate BE. BE to communicate DB.
+
+ports:
+  - port: 80
+    targetPort: 80
+
+
+3) LoadBalancer - Distributes incoming traffic across the service's pods. Load balancer is used if nodes are placed on cloud. 
+
+4) ExternalName - Maps the service to a DNS name external to the cluster. Redirects requests for the service to the specified DNS name.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+  labels:
+   servicelbl: labelname
+spec:
+  type: NodePort
+  selector:
+   app: myapp   ( it will find the pod labelled myapp and route the request )
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30004
+ 
+kubectl expose pod thirdpod --port=8000 --target-port=80 --name myfirstservice
+kubectl expose pod thirdpod --type=NodePort --port=8000 --target-port=80 --name=myfirstservice
+kubectl expose pod httpd --type=ClusterIP --port=8000 --target-port=80
+kubectl expose pod redis --port=6379 --name redis-service
+kubectl get pods
+kubectl run nginx --image=nginx
+kubectl run redis --image=redis --dry-run=client -o yaml > redis-definition.yaml  ( creating container from an image and its yaml file)
+kubectl create -f redis-definition.yaml ( to create pod from a yaml file )
+kubectl describe pod podname
+kubectl delete pod webapp
+kubectl get pods -o wide
+
+minikube service myapp-service --url
+
+
+how to access the application ?
+when we create deployment, it creates replica sets which indeed creates pods. But these pods come up with default cluster IP address and
+therefore they can be accessed from the cluster only.  i.e you need to login to cluster and then access the application. This may not
+be possible for customers which are outside cluster or organzation.
+
+===========================================================================================================================================
+
+Ingress :
+
+nodeport problem:
+- node may not be accessible from outside
+- since ports come in pre defined range, we may not know on which port is application available now. and it is not a good practice to 
+  expose application to range of ports. 
+
+user ----> [ ingress ---> service ---> pods ] cluster
+
+ingress allows :
+- path based routing.
+- host based routing ( sub domain based routing )
+- ssl termination 
+
+Ingress Resource (yaml file): In Kubernetes, an Ingress resource defines how inbound traffic should be routed to services within the cluster. 
+It specifies rules such as hostnames, paths, and backend services.
+
+Ingress controller - first we deploy ingress controller in kubernetes cluster based on the controller. 
+It acts as a traffic router, directing incoming requests to the appropriate services based on rules defined in the Ingress resource. 
+The Ingress controller is responsible for implementing the rules defined in the Ingress resource.
+
+cluster --> ingress controller --> reads ingress resource file --> routes to the aplication path as per the rule
+
+apiVersion: networking.k8s.io/v1
+spec:
+ rules:
+  - host: "mycourses.com"
+    http:
+	 paths:
+	 - pathType: Prefix
+	   path: /
+	   backend:
+	    service:
+		 name: home-service
+		 port: 
+		  number: 8080
+		  
+for domain "mycourses.com", if the request is coming with / then route it to backend service named home-service having port 8080
+for domain "mycourses.com", if the request is coming with /courses then route it to backend service named course-service having port 8181
+
+DNS of application is configured to point to IP of the node.  http://www.mycourses.com:38080
+Now we dont want user to even remember the port. so we place a proxy server at prt 80 btw dns server and node which routes the user reqest
+to node w.o having to use node port and simply use http://www.mycourses.com
+
+kubectl create ingress ingress-test --rule="wear.my-online-store.com/wear*=wear-service:80"
+===========================================================================================================================================
+
+Forward proxy : sits on client side, hides clients identity.
+client ---> forward proxy ---> internet ---> backend servers
+The proxy server acts on behalf of the client, hiding the client's identity and providing access to resources on the internet.
+if user is not able to send out any request from the browser, or not able to access any website it means forward proxy is enabled 
+which is filtering these request coming out of client machine.
+
+
+reverse proxy : sits on server side, hides server identity.
+client ---> internet ---> reverse proxy server(acts as original server) ---> backend servers ---> reverse proxy ---> client
+client sends requests directly to the reverse proxy server, thinking it's the origin server. The reverse proxy then forwards those requests 
+to the appropriate backend servers, retrieves the responses, and sends them back to the client. 
+Acts as a guard for the backend servers, filtering malicious request, load balacing the requests.
+===========================================================================================================================================
+
+Network policy - is another k8 object we apply to each pod, service, node to allow/bock incoming/outgoing traffic. Ideally all the pods
+within k8 cluster are allowed to communicate to each other. but if we need to block any ingress traffic to a pod we apply ntw policy to it.
+
+Kube-router, Calico, Romana, and Weave Net are all examples of container networking solutions for Kubernetes clusters. 
+Each of these tools provides networking capabilities to facilitate communication between pods and nodes within a Kubernetes cluster. 
+
+kubectl get networkpolicies or k get netpol 
+
+apiVersion: networking.k8s.io/v1
+kind: internal-policy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      name: internal
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+	   matchLabels:
+	     name: payroll
+    ports:
+    - protocol: TCP
+      port: 8888
+  - to:
+    - podSelector:
+	   matchLabels:
+	     name: mysql
+    ports:
+    - protocol: TCP
+      port: 3386
+	  
+===========================================================================================================================================
+
+Persistent volume - 
+if data is stored within the pod, there are chances of losing data if pod crashes.
+if the data is stored on worker node at a certain path, even when pod gets deleted and gets created in new node it saves the data at
+same location on worker node. but problem is, earlier data was getting stored in node A, now data is getting stored in node B. So we dont
+get a combined data. 
+To solve this, we need to store data outside cluster, on cloud and bind it to the pod. but how much storage do we need, on which cloud is storage.
+
+admin create multiple pieces of storage in the storage called PV, which is a representation of storage configured on the cloud.
+user creates PV claim. PV claim is then binded to PV. 
+
+static provisioning - manually provisioning PV
+dynamic provisioning
+
+=============================================================================================================================================
+
+kubernetes troubleshooting -
+----------------------------
+
+# ImagePullBackOff - indicates that a pod is unable to pull the specified container image from the container registry. 
+reasons:
+1) invalid image name, 
+2) Image may be private and may require authentication, ensure that the Kubernetes cluster has the necessary credentials (e.g., Docker credentials, Kubernetes secrets) to pull the image.
+3) Network Issues: If there are network connectivity issues between the Kubernetes cluster and the container registry, the pod may fail to pull the image. Check the network configuration of the Kubernetes cluster, including firewall rules, network policies, and DNS resolution settings, to ensure connectivity to the container registry.
+4) Rate Limiting: Some container registries impose rate limits on image pulls, especially for anonymous users. If the Kubernetes cluster exceeds the rate limit, the pod may be unable to pull the image. 
+5) Image Availability: Occasionally, the container registry or the image repository may experience downtime or temporary unavailability.
+
+first kubernetes will throw "ErrImagePull" .. then it will increase the wait time from 5 secs,10 secs,20 .. 30 ..finally "ImagePullBackOff" error.
+
+# CrashLoopBackOff  - when kubelet is trying to run the container but it keeps failing and crashing and kubernetes try to restart automatically
+and it again crashes , it goes in a loop called crashloopbackoff state. This indicates that something is wrong with the application or the
+configuration that needs to be fixed.
+
+1) Application Errors: The application running inside the pod may encounter errors or exceptions that cause it to crash. 
+   These errors could be due to bugs in the application code, missing dependencies, incorrect configuration, or resource constraints.
+2) Resource Constraints: The pod may not have enough CPU, memory, or other resources allocated to it, causing it to crash repeatedly.
+3) Missing Dependencies: The application may depend on external services or resources that are not available or accessible. 
+   Ensure that all required dependencies are available and correctly configured.
+4) Health Checks: Kubernetes uses probes (readiness and liveness probes) to determine the health of pods. If the application fails these probes 
+   consistently, Kubernetes will restart the pod. However, if the application continues to fail the probes after multiple restarts, Kubernetes 
+   will enter the "CrashLoopBackOff" state.
+5) Incorrect CMD arguments in docker file. 
+=============================================================================================================================================
+
+Container Runtime , CRI
+
+In java we have Java runtime which provides min set of libraries + jvm to run a java program. W.O JRE we cannot run java program.
+similary we have container runtime in docker, which helps in running a container. W.O CRI, container will never run.
+==============================================================================================================================================
+
+How is K8 production system maintained ?
+
+local k8 cluster - minikube, kind, k3d, k3s.
+prod distribution - kubernetes, openshoft, eks, aks, tanzu, gke.
+
+kops, kubeadm.
+
+Kops, short for Kubernetes Operations, is a command-line utility used to create, deploy, and manage Kubernetes clusters on various cloud platforms, 
+including AWS (Amazon Web Services). It simplifies the process of provisioning and managing Kubernetes clusters by automating tasks such as cluster 
+creation, scaling, upgrading, and maintenance.
+==============================================================================================================================================
+
+why application cannot be deployed as container in k8 and why as pod only ?
+if there are multiple containers in a pod, then kubernetes allows to have a shared storage, network , contaners can talk to each other.
+all the confugration of how containers have to be build is provided in pod.yaml file.
+
+what is imagePullPolicy ?
+In Kubernetes, the image pull policy determines when a Kubernetes node should attempt to pull a container image for a pod from the container image 
+registry. The image pull policy is specified in the pod's configuration and dictates whether Kubernetes should always attempt to pull the latest 
+version of the image, or whether it should use a locally cached version if available.
+Different values of imagePullPolicy are : Always, IfNotPresent, Never
+==============================================================================================================================================
+what is the role of kubernetes in docker ?
+what is imagePullPolicy ?
+what is server ? diff type of service
+what is deployment ?
+what is daemon set ?
+explain kubernetes archotecture ?
+what is the size of infrastructure you managed in kubernetes ?
+what are the steps to deploy a new service in kubernetes ?
+if a pod is crashing , how would you investigate it ?
+if a pod is in pending state, what would be the reasons ?
+what is container runtime ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+

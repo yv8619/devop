@@ -1,0 +1,532 @@
+https://www.hashicorp.com/certification/terraform-associate
+
+Terraform - Infrastructure as code. Terraform is a popular infrastructure as code (IaC) tool that allows you to provision and manage cloud resources across various cloud providers, including AWS and Azure .
+companies implement hybrid cloud models for reason like.. azure is good with devops services and aws is good with storage services and google is good with AI services.
+
+Terraform uses HCL (HashiCorp Configuration Language)  which is a declarative language to configure infrastucture.
+
+Alternates:
+aws - cloud formation
+azure - aazure reource manager, ARM
+
+For AWS we use CFT (cloud formation template) to provision resouces in json/yaml form, for Azure we write code for ARM (azure resource manager) services to provision resources. 
+This is called infrastructure as code (IaC) tool. This created dependency on writing different code for different clouds. 
+
+ To solve this, Terraform tool was introduced by hashicorp. Terraform is API as code. We need to learn only terraform template to provision resources. HCL (HashiCorp Configuration Language)
+
+==============================================================================================================================================
+
+Terraform file uses .tf extension. There is one main configuration file called main.tf. 
+
+main.tf file can be divided into :
+provider.tf
+input.tf
+output.tf
+value.tfvars
+variables.tf
+modules.tf
+
+=============================================================================================================================================
+
+3 stages to use .tf file 
+
+- terraform init ( initialize config file )  - whenever a new resource is added, terraform init should be run to download the necessary plugins. By default, terraform init downloads plugins  
+  into a subdirectory of the working directory, " .terraform/providers" so that each working directory is self-contained.
+
+- terraform validate -  validates the configration file if all the blocks are valid i.e no unwanted attribute is present inside a block.
+
+- terraform plan : terraform will compare terraform.tf configuration file and state file and let the user know what resrouces will be created/updated/deleted.
+  You can save the plan to a file using command - terraform plan -out=myplan
+
+- terraform apply - whenever this command is used, a terraform.tfstate file will be created in the directory which stores record of all the current infra created. It contain array and each array
+  element present the resrouce created.
+
+- terraform destroy : terraform will refer to tfstate file to see what resources needs to be destroyed.	
+  terraform destroy -target=aws_instance.web2 ( selective destroy )
+
+==============================================================================================================================================
+
+variables:
+
+variable "variable_name" {
+  description = "description of variable"
+  type = string
+  default = "default value of variable"
+}
+
+ami = var.ami_id  ( var.variable_name )
+
+if you dont give variable value in file, then terraform will ask the value when we run , terraform plan.
+
+declare variable with default values in "variables.tf" file.
+declare values of all variables in "variables.tfwars" file.
+all the providers info will be present in providers.tf file.
+
+variable definition file - having variables in key value form. extension of file is .tfvars
+
+variable precedence in increment order - 
+environment variables --> terraform.tfvars --> *.auto.tfvars (alphabetic order) -> -var or -var-file ( command line flags)
+
+
+How to print certain info in console ?
+Using output variable.
+
+create file output.tf in the same directory where other terraform files are present. Info will be printed when we do terraform apply.
+
+output "public_ip_address" {
+  description = "desription of output variable"
+  value = aws_instance.example.public_ip
+}
+
+==============================================================================================================================================
+
+Terraform state - terraform manages a file called .tfstate where it stores the record n details of all the resources user created,updated,deleted.
+when we do terraform apply, it stores the new info in terraform state file again. terraform also creates a backup file by itself by name "terraform.tfstate.backup"
+Terraform's state allows you to track resource changes throughout your deployments.
+state is stored by default in a local file named "terraform.tfstate", but we recommend storing it in Terraform Cloud to version, encrypt, and securely share it with your team.
+
+- when we run terraform plan command, terraform will compare the main.tf file with terraform state file and highlight the new changes.
+
+state file is very sensitive file, so generally dev/test wont have access to this file. Terraform will lock the state file to avoid 2 users updating/deleting same resource at the same time.
+terraform state file is by default stored in configuration directory. 
+
+when we do terraform apply or terraform refresh, the state file is written to disk in plain text.
+
+
+current state vs desired state - 
+ex: instance detail of ec2 on aws and terraform file remains always same . but if user go to aws and update the instance from t2.micro to t2.small terraform may not b aware of this change.
+in this case the current state and desired state will become different. but if we apply terraform apply again, the configuration present in file will over ride the aws manual configurations.
+
+For local state, Terraform stores the workspace states in a directory called terraform.tfstate.d
+For remote state, the workspaces are stored directly in the configured backend.
+
+# terraform show - shows all the deployed resources. 
+# terraform state -  command to perform basic modifications of the state using the CLI.
+# terraform state list -  to see a list of all Terraform-managed resources.
+# terraform state show -  used to display the attributes and current values of a resource stored in the Terraform state file. This command is helpful for inspecting the state of a resource, 
+   verifying its current configuration, and troubleshooting any discrepancies. ex: terraform state show aws_instance.example
+# terraform state mv  - renaming the resources in the Terraform state file.
+# terraform state pull and terraform state push - Pulling and pushing the Terraform state. subcommands can be used to retrieve and upload the Terraform state from and to a remote backend.
+# terraform state import - can be used to import existing resources into the Terraform state. This allows Terraform to manage resources that were created outside of Terraform.
+# terraform state rm - used to remove resources from the Terraform state. It's important to note that using terraform state rm does not delete the actual resource from your cloud provider. 
+   It only removes the resource from Terraform management. You may need to manually delete the resource from your cloud provider's console or CLI if you want to remove it completely.
+   syntax:  terraform state rm aws_instance.example
+# terraform state lock - manually lock the state file, preventing other Terraform commands from making changes to the state until it is unlocked.
+# terraform state unlock - Terraform attempts to unlock the state file using the lock ID stored in the lock metadata. 
+# terraform force-unlock - This command is used to forcibly unlock the state file, bypassing the lock metadata.
+
+============================================================================================================================================
+
+# terraform validate - to check the configuration file if written correctly. validates resource block and the argument syntax only.
+# terraform refresh - if you manually change a property of resource on cloud or where ever in remote, once we run refresh command, local state file gets updated.
+# terraform show - if you want to see state file on cli , use terraform show command. 
+# terraform fmt - check indentation of file.	
+# terraform providers - list all the providers
+# terraform -version - prints provider version installed
+
+# terraform output - lets say there is a output block in configuration file where we want to print git repo url.
+output "terraform-first-repo-url" {
+  value = var.resource_type.resource_name.html_url
+}
+
+when we do terraform plan, it will create a output block in state file. And when we do terraform apply, it will populate the repository url details in output block in state file.
+terraform output terraform-first-repo-url  ( this will print the repo url in console )
+
+# terraform console : if you want to simply check the values of variables or any other state file propery, terraform console will open a new terminal where we can run the commands.
+
+terraform graph -  visual representation of terraform resources n dependency
+terraform export - you can set env variables in local machine using export command.
+terraform plan -out filename ( save the plan in a file for later use)
+terraform apply filename
+terraform apply -auto-approve ( if you alreadty verified terraform plan)
+
+# terraform import - command in Terraform is used to import existing infrastructure resources into your Terraform state.
+syntax: terraform import aws_instance.example i-1234567890abcdef0
+
+# terraform refresh ( fetches latest changes from aws console and update state file ) - The terraform refresh command reads the current settings from all managed remote objects and updates the Terraform state to match. Terraform automatically performs the same refreshing actions as a part of creating a plan in both the terraform plan and terraform apply commands.
+
+# terraform apply -replace="aws_instance.web"  ( will destroy and create the entire resource )
+
+# terraform plan --refresh-only  - Terraform will compare the current state of your infrastructure, as recorded in the state file, with the actual state of the resources in your cloud provider (e.g., AWS, Azure, Google Cloud). It simply refreshes the state to ensure that Terraform has an accurate view of the existing infrastructure before making any further decisions.
+
+
+==============================================================================================================================================
+
+aws --version
+aws configure
+aws iam create-user --user-name lucy
+aws <command> help
+aws iam list-users
+aws --endpoint http://aws:4566 iam attach-user-policy --user-name mary --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+aws --endpoint http://aws:4566 iam create-group --group-name project-sapphire-developers
+aws --endpoint http://aws:4566 iam add-user-to-group --user-name jack --group-name project-sapphire-developers
+aws --endpoint http://aws:4566 iam list-attached-group-policies --group-name project-sapphire-developers 
+aws --endpoint http://aws:4566 iam list-attached-user-policies --user-name jack
+aws --endpoint http://aws:4566 iam attach-group-policy --group-name project-sapphire-developers  --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+
+==============================================================================================================================================
+
+Data types : set in variables.tf
+
+1) List
+variable port_numbers {
+ description = "enter 4 port numbers for ingress"
+ type = list[number]
+}
+
+Set in SG file for ingress port: 
+var.port_numbers[0]
+var.port_numbers[1]
+var.port_numbers[2]
+var.port_numbers[3]
+enter value = [80, 9090, 8181, 8242 ]
+
+
+2) Map
+
+variable instance_type_map {
+ description = "enter 4 port numbers for ingress"
+ type = map(string)
+ default = {
+  "web" = "t2.micro"
+  "db" = t2.nano"
+  }
+
+Set in SG file for instance type: 
+var.instance_type_map["web"]
+var.instance_type_map["db"]
+
+==============================================================================================================================================
+
+count and count index : if we want to create multiple ec2 instance in one go via terraform, we do it by using count.
+
+resource "aws_instance" "web" {
+ami = "ami-1234"
+instance_type = "t2.micro"
+filename = var.filename[count.index]
+count = 3   // hardcoded length
+count = length	(var.filename)   // dynamic
+}
+
+variable "instance_name" {
+  default = ]
+    "/root/pet.txt",
+    "/root/dog.txt"
+    "/root/cow.txt"
+}
+==============================================================================================================================================
+
+what are terraform modules ?
+
+module is like one of these room blueprints. It's a way to organize and reuse chunks of infrastructure code. Instead of writing the same configuration for each part of your infrastructure every time you need it, you create a module with all the settings and options you want. Then, you can use that module whenever you need that part of your infrastructure.
+Modules make it easier to manage your infrastructure code because you can reuse the same configurations across multiple projects. They also help keep your code organized and consistent, making it easier to understand and maintain.
+
+ let say, a user created  main.tf having ec2 instance block , variable.tf file, output.tf file. 
+now another user want to repeat the same task . So instead of creating all files again, he can simply refer his main.tf file to the parent main.tf file. 
+The standard parent file would be stored in a central repo for everyone to refer. This division of parent files set will be called in itself a module. So  which ever resource has to
+be provisioned, we create a standard main.tf file and place it in a repo. This way we can avoid rewriting terraform files altogether. we improve reusability of code, maintainance.
+
+- private registry : oranzations can store and share modules in private registry with access control, disverability, reusability.
+- public registry : commutnies can share their modules for others to re use.
+
+userB main.tf. Has to refer repo file for resource creation.
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "ec2_instance" {
+  source = "github path or local path"
+  ami_value = "xxx"
+  instance_type_value = "xxx"
+  subnet_id_value = "xxx"
+}
+
+userA main.tf ( This will be stored in repo along with variable file )
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+ resource "ec2_instance" {
+  ami_value = "var.ami_value"
+  instance_type_value = "var.instance_type_value"
+  subnet_id_value = "var.subnet_id_value"
+}
+
+
+To publish modules on public registry, it should follow -
+- it should be on public repo like github
+- it should be named like terraform-provider_name  ex: terraform-aws_ec2_instance
+- tags version should be x.y.z ex: v3.0.2
+
+
+Source of module
+- local path : starts with ./  ex: source = "./consul"
+- public registry : <NAMESPACE>/<NAME>/<PROVIDER>, source = "hashicorp/consul/aws"
+- private registry :  source = "app.terraform.io/example-corp/k8s-cluster/azurerm"
+- github : source = "github.com/hashicorp/example"
+
+- terraform get : used to retrieve modules from remote repositories, not to bring existing resources under Terraform management. 
+
+==============================================================================================================================================
+
+conditional expression :   condition ? true_value : false_value
+
+ingress {
+from_port		=  22
+to_port		=  22
+protocol		=  "tcp"
+cidr_block	=  var.environment == "production" ? [var.production_subnet_cidr] : [var.development_subnet_cidr]
+}
+
+==============================================================================================================================================
+
+Dependencies:
+
+Implicit dependencies - are automatically detected by terraform. It helps terraform to know in what order resrouces should be created and deleted.
+explicit dependencies - are manually set by user using keyword 'depends on'
+
+==============================================================================================================================================
+
+Secret management - hashicorp secret vault is one of the most famous secret management tool.
+
+- vault package is not available by default in ubuntu. 
+- vault comes with 2 servers: dev and prod. In real time we use prod servers in organizations.
+==============================================================================================================================================
+
+terraform workspace - 
+Terraform workspaces are a feature that allows you to manage multiple environments or configurations within the same Terraform configuration files. Workspaces enable you to maintain separate state files for each environment, making it easier to manage infrastructure across different stages of development, such as development, testing, staging, and production.
+
+create workspace - uses "new" keyword
+terraform workspace new dev
+
+switch to dev workspace - 
+terraform workspace select development
+==============================================================================================================================================
+
+ENV Variables :  export command is used to set env variable locally. 
+
+log lavels - info, warning, error, debug, trace.  
+trace being most detailed log level.
+
+TF_LOG
+export TF_LOG=trace
+export TF_LOG=off
+
+TF_LOG_PATH
+export TF_LOG_PATH=./terraform.log
+
+TF_INPUT
+
+TF_VAR_name
+export TF_VAR_region=us-west-1
+export TF_VAR_ami=ami-049d8641
+export TF_VAR_alist='[1,2,3]'
+export TF_VAR_amap='{ foo = "bar", baz = "qux" }'
+
+TF_WORKSPACE
+==============================================================================================================================================
+
+Terraform CLI - 
+
+terraform taint - The terraform taint command informs Terraform that a particular object has become degraded or damaged. Terraform represents this by marking the object as "tainted" in the Terraform state, and Terraform will propose to replace it in the next plan you create. This command is deprecated.
+
+ex: if one of the aws instance is to be replaced
+terraform apply -replace="aws_instance.example[0]"
+
+==========================================================================================================================================
+
+Terraform provisioners - used to run scripts or shell commands locally or on remote machine like ec2. 
+2 types of proviiosners:
+local exec
+remote exec
+
+provisioner definition goes inside resource definition block.
+==========================================================================================================================================
+
+Terraform backend - storing state file in git may not be a good practice as it exposes all the infra configrations and credentails if any. 
+one option is to store the state file in S3 bucket. s3 can be used in free tier. Also it provides locking meckanism.
+
+terraform {
+  backend "s3" {
+    bucket = "gaurav-tf-state"
+    region = "us-east-1"
+    key = "terraform.tfstate"
+}}
+
+Now if you dont want S3 as backend, comment the backend block code, terraform apply , and then terraform init. It will apply default backend which is terraform.tfstate file visible in local 
+directory.
+
+In order to avoid 2 users working on state file at the same time, we can create a table and store the details of user currently working on the file and store the lock information.
+if user 2 try to do terraform apply, it will throw error.
+
+terraform {
+  backend "s3" {
+    bucket = "gaurav-tf-state"
+    region = "us-east-1"
+    key = "terraform.tfstate"
+    dynamodb_table = "my_table-tf"
+}}
+
+===========================================================================================================================================
+
+Terraform configuration - In order to avoid users using different versions of terraform, aws, azure we provide a defined version in the configuration file itself.
+
+terraform {
+  required_version = "1.1.0"
+}
+
+required_providers {
+  aws = {
+    source = "hashicorp/aws"
+    version = "3.71.0"
+}}
+
+===========================================================================================================================================
+
+create vpc with cidr block 10.0.0.0/16 
+create public subnet in az1, private subnet in az2 with cidr block 10.0.0.0/24 and attach it to the vpc created.
+create igw and attach it to vpc
+create nat gateway 
+vpc comes with a default route table. create a route table for public subnet and a route table for private subnet. 
+Associate public route table to public subnet and private route table to private subnet
+configure public route table in a way that any internet rqst are routed to igw.
+configure private route table in a way that any internet rqst are routed to ngw.
+
+===========================================================================================================================================
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+ resource "ec2_instance" "web" {
+  ami 				= "var.ami_value"
+  instance_type			= "var.instance_type_value"
+  subnet_id			= "var.subnet_id_value"
+  vpc_security_group_ids 	= ["sg-sf23434ff"]
+
+  tags = {
+    "Teraform" = true
+  }
+}
+
+===========================================================================================================================================
+
+Terraform blocks:
+
+1) Provider block  - providers are a way to interact with remote system 
+   ---------------------
+
+ provider "aws" {
+   region = "us-east-1"
+}
+
+
+2) resource block
+   ---------------------
+
+- route table should be associated to a vpc
+- if any traffic is going out to internet then it should go via internet gateway
+
+ resource "aws_route_table"  "public_route_table" {
+   vpc_id =  aws_vpc.vpc.id
+
+   route {
+     cidr_block = "0.0.0.0/0" (var.variables_cidr_block)
+     gateway_id = aws_internet_gateway.internet_gateway.id
+    }
+   tags = {
+     Name = "demo_public_rtb"
+     Terraform = "true"
+   }
+}
+
+
+3) variables block - can be set externally, either through command-line flags, environment variables, or variable files
+    ----------------------
+
+ variable "instance_type" {
+  description = "The type of EC2 instance to launch"
+  type        = string
+  default     = "t2.micro"
+}
+
+
+4) Local block - values that are local to the Terraform configuration file
+    ----------------
+locals {
+  instance_name      = "ExampleInstance"
+  instance_ami       = "ami-12345678"
+  instance_type      = "t2.micro"
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+
+5) configuration block
+   -----------------------------
+terraform {
+  required_version = "~> 1.0.0"
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 3.0"
+  }
+ }
+}
+
+
+6) module block
+    -------------------
+The module block typically includes a source parameter that specifies the location of the module's source code. This can be a local file path or a versioned module in a version control system like Git.
+Modules help break down complex infrastructure configurations into smaller, more manageable pieces. Each module encapsulates a specific set of resources and functionality.
+Modules promote reusability by allowing you to define infrastructure components once and then reuse them across multiple configurations.
+
+module "subnet_addr" {
+  source = "hashicorp/subnets/cidr"
+  version = "1.0.0"
+  
+  base_cidr_block = "10.0.0.0/24"
+  }}
+  
+
+7) output block
+    ------------------
+if you want to export a value of a variable, we use output block i.e if you want to print the value to console.
+
+output "vpc_information" {
+  description = "vpc information about environment"
+  value = "{aws_vpc.vpc.tags.environment}"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
