@@ -1,0 +1,46 @@
+
+Deployment strategies 
+
+1) Blue green deployment
+   ---------------------
+
+Blue - production live env with application version 1.0
+Green - clone of blue prod env but with next version of application where we can test, fix, make changes to application.
+
+currently load balancer route all traffic to Blue env. Once all test done, traffic is routed to Green env which then becomes blue env
+and the Actual blue having old code becomes Green env. This env becomes dummy env now.
+In case any issues come in the latest version, we can easily switch back to older version.
+
+Advantage  no downtime
+Disadvantage - infra cost of maintaining 2 env in production.
+
+
+2) canary deployment or Incremental or phase roll out
+   --------------------------------------------------
+Traffic is incrementally routed to latest version until stablity is achieved.
+"canary" refers to a small, controlled subset of production traffic or users that are exposed to a new version of the software before it is rolled 
+out to the entire user base. This approach allows organizations to test the new version in a real-world environment while minimizing the potential 
+impact on the overall user experience.
+
+
+3) A-B Deployment  
+   --------------
+two versions of an application, A and B, are deployed simultaneously. a portion of the user traffic is routed to version A (the current stable version)
+while another portion is routed to version B (the new version or feature under test).
+By monitoring metrics such as performance, stability, and user engagement, teams can evaluate the impact of changes introduced in version B 
+compared to version A. This allows for data-driven decision-making and iterative improvements to the application.
+
+
+4) Rolling update
+   --------------
+For 3 tier applications, where web is in one ec2, app is in another ec2 and DB is in also in ec2.
+so we provision an additional ec2 and deploy next version to this ec2 and terminate the previous ec2.
+The new version of the application is deployed in small increments, typically one instance or a subset of instances at a time.
+Graceful Transition: Each new instance or version is brought online and verified to ensure it is healthy and functioning correctly before moving 
+on to the next instance. High Availability: At any given time during the update process, there is still a sufficient number of instances running 
+the older version to maintain service availability and handle user requests.
+
+
+5) All at once or Recreate
+   -----------------------
+   downtime of application expected.

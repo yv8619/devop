@@ -1,0 +1,39 @@
+Ansible
+
+Terraform is used to provision the resources on cloud, on prem but to manage,update,patch the same resources we need to have a configuration tool. The tool is ansible.
+Ansible is a push based mechanism i.e there will be a master server which have ansible installed. This server will push the new updates,patches to all other machines where we maintain resources.
+Ansible is built on python.
+
+---- Installation ---------------------------------------------
+install ec2 instance
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt update
+sudo apt install ansible
+--------------------------------------------------------------------
+
+ansible host file in master node will have the configuration details of all other worker nodes. This default configruation file is present in  /etc/ansible/ansible.cfg.
+ansible_host is ansible inbuilt variable
+
+[servers]
+server_1 ansilbe_host=1.1.1.1
+server_2 ansilbe_host=1.1.1.1
+server_3 ansilbe_host=1.1.1.1
+
+
+Ansible playbook - is a yaml file 
+
+==============================================================================================================================================
+
+Ansible Inventory : inventory is a file or directory that contains information about the hosts or target machines managed by Ansible. 
+host can be 1 or a group which is to be managed by ansible.
+
+[webservers]
+web1.example.com
+web2.example.com
+
+[databases]
+db1.example.com
+db2.example.com
+
+Linux use ssh to connect to worker nodes , windows use power shell to connect.
+

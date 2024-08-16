@@ -1,0 +1,131 @@
+Ansible (Redhat)
+
+ansible is configuration management tool. 
+
+configraiotn management is a way how a devops engineer manages the configuration of infrastrcuture i.e servers ( VMs).
+
+lets say there are numerous vms on different os like windows, macos, linux, centos, sedora. devops should maintain the upgrades, security patches,  So to manually login to these many servers
+and perform these configration updates is practically not possible. we could even write the scripts to auto update these configraiotns but it would have been different for each os. 
+
+So to solve this problem, Ansible was introduced. Ansible manages the configration of multiple servers. 
+
+Alternates - puppet, chef, salt.
+
+
+sudo apt update
+ansible --version
+
+ansible should be able to communicate to server w.o any password authenticaton in order to do any updates on the server.
+
+we need 2 ubuntu servers - 
+1 will act as parent, other will act as target server on which update will be done.
+
+1 - ssh-keygen
+copy the public key
+login to target server - ssh-keygen here as well
+vim authorized_keys
+paste the source public key
+at source - do the ssh of target :  ssh 172.31.51.20  ( you will now be able to talk to target server w.o any password authentication )
+
+ansible playbook -  playbook is simply a file in which you write the script. In ansible we call it playbook.
+
+ansible adhoc commands - if you want to run some commands on target server , we call it ansible adhoc commands.
+
+inventory files - where we store IP addresses of target servers. In ansible all the server details are configured in inventory files.
+
+
+execute a shell command on all hosts specified in the inventory file. 
+-m "shell": Specifies the Ansible module to use. In this case, the "shell" module is used, which allows running shell commands on the remote hosts.
+
+ansible -i inventory all -m "shell" -a "touch devopsclass"  ( i = identify location of file, m = module, a = arguments )
+
+ansilbe adhoc commands - 1 or 2 commands
+playbook - multiple commands
+
+In inventory files, IP addresses can be grouped within the brackets. ex:
+[appServer]
+1.2.3.4
+0.0.0.0
+
+[webServer]
+1.2.3.4
+4.4.4.4
+
+ansible -i inventory appServer -m "shell" -a "touch devopsclass" 
+
+
+how to write playbook ?
+Install nginx, start nginx
+
+vim first-playbook.yaml
+========================================
+--- ( 3 hyphen indicates it is a yaml file)
+- name: Install and start nginx
+- hosts: all
+- become: true  ( become root user )
+
+  tasks: 
+    - name: Install nginx
+      apt:
+	name: nginx
+	state: present
+    - name: start nginx
+      service:
+	name: nginx
+	state: started
+
+=========================================
+
+ansible-playbook -i inventory first-playbook.yaml
+
+- ANSIBLE ROLES
+if the playbook have too many steps ex: configring kubernetes cluster .. then it is better to strcuture it in clear way .. this is where ansible roles come into picture.
+In Ansible, a role is a way to organize and structure your automation content. It is a collection of related tasks, variables, files, and templates that can be reused across multiple playbooks. 
+Roles help in modularizing and simplifying the organization of your Ansible code, making it more maintainable and scalable.
+
+ansible-galaxy is a command-line tool that comes with Ansible and is used to manage and share Ansible roles.
+
+
+ansible-galaxy init kubernetes
+- Role kubernetes was created successfully
+
+==========================================================================================================================================
+
+Ansible configuration - Ansible uses configuration files to define the default behavior of ansible by having certain settings and parameters for its execution. 
+There are two main configuration files associated with Ansible: ansible.cfg and hosts (or inventory).
+
+1) ansible.cfg file is the main configuration file for Ansible. It can be used to set various options, such as the default location of inventory files, connection settings, and other preferences.
+The default location for the ansible.cfg file is /etc/ansible/ansible.cfg.
+
+[defaults]
+inventory = /path/to/inventory
+remote_user = myuser
+private_key_file = /path/to/private_key.pem
+roles_path = /path/to/roles
+log_path = /path/to/ansible.log
+ssh_timeout = 10
+forks = 5
+
+[privilege_escalation]
+become = True
+become_user = root
+become_method = sudo
+
+[ssh_connection]
+pipelining = True
+
+[inventory]
+[persistent_connection]
+[colors]
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,85 @@
+DevOPS Pillars:
+--------------
+Automation
+Quality
+Monitoring
+Testing
+
+
+what is a server ?
+a server is a computer or a system that provides services to other computers, known as clients, in a network. These servers can be of different memory size.
+All servers are computers, but not all computers are servers. 
+
+
+what is a hypervisor ?
+The hypervisor is like a shared house which divide the house into separate rooms and let different families live in each room. 
+each room acts like a VM (a virtual computer) havings its own resources ( like kitchen, bathroom ). hypervisor helps in running multiple OS on same computer.
+so when we request a VM(ec2) on AWS, this VM is created on one of the physical server in a data center in a region like mumbai with the help of hypervisor.
+
+
+VM - means hiring a rental computer of your choice of any OS, RAM, Size. This can be installed on your computer or having it on cloud like AWS, Azure.
+User --> aws console --> EC2 --> ip address
+
+
+how to automate creating ec2 creation ?
+user --> aws cli (python script) --> aws api --> ec2 creation
+or
+user --> aws cloud formation template --> ec2 creation
+or
+user --> aws cloud development kit (CDK) 
+or
+Terraform ( resource creation tool ) - support resource creation in any cloud.
+
+
+what are the cli used for OS and windows ?
+OS - iTerm2
+windows - Putty, Mobaxterm, NoMachine.
+
+
+How to connect to ec2 instance from terminal ?
+ssh -i .pemlocation ubuntu@publicIP  ( -i means identify file)
+chmod 600 .pemlocation
+ssh -i .pemlocation ubuntu@publicIP
+
+
+AWS Cli - is a binary. we need to download in our system. 
+To provide credentials to cli, aws profile -> secrity credentials -> create access key .
+aws cli -> aws configure -> enter key n password -> 
+
+=========================================================================================================================================
+
+DAY 19 - JENKINS
+
+yvJenkins / swindon
+
+connect to instance
+sudo apt update
+
+# install java
+# install jenkins 
+# install docker 
+# install docker pipeline plugin inside jenkins.  The plugin provides steps to define and run Docker containers as part of Jenkins pipeline stages.
+# Grant Jenkins user and Ubuntu user permission to docker deamon.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
